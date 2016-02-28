@@ -1,0 +1,35 @@
+[
+  {
+    "model": "ussd.menus",
+    "pk": 1,
+    "fields": {
+      "title": "Register",
+      "has_precondition": 0,
+      "type": 2,
+      "is_parent": 1,
+      "confirmation_message": "You have successfully registered for Mobidev Payments"
+    }
+  },
+  {
+    "model": "ussd.menus",
+    "pk": 2,
+    "fields": {
+      "title": "Mobidev Lending",
+      "has_precondition": 0,
+      "type": 1,
+      "is_parent": 0,
+      "confirmation_message": ""
+    }
+  },
+  {
+    "model": "ussd.menus",
+    "pk": 3,
+    "fields": {
+      "title": "Request Loan",
+      "has_precondition": 0,
+      "type": 2,
+      "is_parent": 0,
+      "confirmation_message": ""
+    }
+  }
+]
