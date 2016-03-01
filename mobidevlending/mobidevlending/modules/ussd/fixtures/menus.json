@@ -3,7 +3,7 @@
     "model": "ussd.menus",
     "pk": 1,
     "fields": {
-      "title": "Register",
+      "title": "Registration Details:",
       "has_precondition": 0,
       "type": 2,
       "is_parent": 1,
