@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils import timezone
 
-
 """
 This is used to store all the ussd user's details
 """
@@ -48,7 +47,6 @@ class MenuItems(models.Model):
     confirmation_phrase = models.CharField(max_length=200)
     created_date = models.DateTimeField(default=timezone.now)
 
-
     @classmethod
     def get_menu_and_items(cls, menu_id):
         for items in MenuItems.objects.get(menu_id):
@@ -74,7 +72,8 @@ class Responses(models.Model):
     phone = models.CharField(max_length=50)
     menu_id = models.IntegerField()
     menu_item_id = models.IntegerField()
-    response = models.CharField(max_length=100)
+    user_input = models.CharField(max_length=100)
     created_date = models.DateTimeField(default=timezone.now)
+
 
     # def save_response(self, user_id, menu_id, menu_item_id, response):
