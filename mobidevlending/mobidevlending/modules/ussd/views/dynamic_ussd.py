@@ -110,11 +110,33 @@ def confirm_ussd_process(ussd_user, message):
             response = menu.confirmation_message
             send_response(response, 2)
         elif validation_variations(message, 2, "no"):
-            pass
+            reset_user(ussd_user)
+            ussd_user.menu_id = 2
+            ussd_user.session = 1
+            ussd_user.progress = 0
+            ussd_user.save()
+
+            # get home menu
+            menu = Menus.objects.get(pk=2)
+            menu_items = get_menu_items(menu.id)
+
+            i = 1
+            response = menu.title + "\n"
+            for menu_item in menu_items:
+                response = response + i + ": " + menu_item.description + "\n"
+                i += 1
+
+            send_response(response, 1)
+
+        else:
+            response = "We could not understand your response"
+            return response
 
 
 def validation_variations(message, option, value):
-    if message.strip().lower() == value.strip().lower() or message == option or message == "." + option or message == option + "." or message == "," + option or message == option + ",":
+    if str(message.strip().lower()) == str(value.strip().lower()) or str(message) == str(option) or str(
+            message) == "." + str(option) or str(message) == str(option) + "." or str(
+        message) == "," + str(option) or str(message) == str(option) + ",":
         return True
     else:
         return False
@@ -138,8 +160,29 @@ def pre_confirmation(ussd_user, menu):
     return response_2
 
 
-def post_confirmation(user, menu):
-    pass
+def post_confirmation(ussd_user, menu):
+    if ussd_user.menu_id == 1:
+        menu_items = get_menu_items(menu.id)
+
+        for menu_item in menu_items:
+            response = Responses.objects.get(phone=ussd_user.phone, menu_id=ussd_user.menu_id,
+                                             menu_item_id=menu_item.id)
+            print response
+            if menu_item.id == 1:
+                ussd_user.name = response.user_input
+
+            if menu_item.id == 2:
+                ussd_user.gender = response.user_input
+
+            if menu_item.id == 3:
+                ussd_user.email = response.user_input
+
+        ussd_user.save()
+
+        menu = Menus.objects.get(pk=2)
+        reset_user(ussd_user)
+        response = next_menu_switch(ussd_user, "", menu)
+        send_response(response, 1)
 
 
 def validate_input(message):
@@ -190,12 +233,7 @@ def get_menu_items(menu_id):
 
 
 def get_ussd_response_by_phone_and_menu_id_and_menu_item_id(phone, menu_id, menu_item_id):
-    # print "phone: " + phone + " menu_id: " + menu_id + " menu_item_id: " + menu_item_id
-    # print phone
-    # print menu_id
-    # print menu_item_id
     responses = Responses.objects.get(phone=phone, menu_id=menu_id, menu_item_id=menu_item_id)
-    # print responses
     return responses
 
 
