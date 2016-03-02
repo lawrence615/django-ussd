@@ -50,6 +50,10 @@ def ussd(request):
             elif ussd_user_3.session == 2:
                 response = confirm_ussd_process(ussd_user_3, message)
 
+                # if response is not None:
+
+                # else:
+                #     print response
             return send_response(response, 1)
 
 
@@ -82,7 +86,6 @@ def continue_single_process(ussd_user, message, menu):
             store_ussd_response(ussd_user, message)
         if ussd_user.progress == 3:
             store_ussd_response(ussd_user, message)
-            # ussd_user.session = 1
             # ussd_user.progress = 0
             # ussd_user.save()
 
@@ -91,6 +94,7 @@ def continue_single_process(ussd_user, message, menu):
     if MenuItems.objects.filter(menu_id=menu.id, step=step).exists():
         menu_item = MenuItems.objects.get(menu_id=menu.id, step=step)
 
+        ussd_user.session = 1
         ussd_user.menu_item_id = menu_item.id
         ussd_user.menu_id = menu.id
         ussd_user.progress = step
@@ -108,10 +112,10 @@ def confirm_ussd_process(ussd_user, message):
             post_confirmation(ussd_user, menu)
             reset_user(ussd_user)
             response = menu.confirmation_message
-            send_response(response, 2)
+            return send_response(response, 2)
         elif validation_variations(message, 2, "no"):
             reset_user(ussd_user)
-            ussd_user.menu_id = 2
+            ussd_user.menu_id = 1
             ussd_user.session = 1
             ussd_user.progress = 0
             ussd_user.save()
@@ -123,10 +127,10 @@ def confirm_ussd_process(ussd_user, message):
             i = 1
             response = menu.title + "\n"
             for menu_item in menu_items:
-                response = response + i + ": " + menu_item.description + "\n"
+                response = response + str(i) + ": " + menu_item.description + "\n"
                 i += 1
 
-            send_response(response, 1)
+            return send_response(response, 1)
 
         else:
             response = "We could not understand your response"
@@ -167,7 +171,7 @@ def post_confirmation(ussd_user, menu):
         for menu_item in menu_items:
             response = Responses.objects.get(phone=ussd_user.phone, menu_id=ussd_user.menu_id,
                                              menu_item_id=menu_item.id)
-            print response
+            # print response
             if menu_item.id == 1:
                 ussd_user.name = response.user_input
 
@@ -176,13 +180,14 @@ def post_confirmation(ussd_user, menu):
 
             if menu_item.id == 3:
                 ussd_user.email = response.user_input
-
+        ussd_user.is_registration_done = 1  # change status to 1
         ussd_user.save()
 
         menu = Menus.objects.get(pk=2)
         reset_user(ussd_user)
+        # print menu.id
         response = next_menu_switch(ussd_user, "", menu)
-        send_response(response, 1)
+        # send_response(response, 1)
 
 
 def validate_input(message):
@@ -208,9 +213,9 @@ def next_menu_switch(ussd_user, message, menu):
         menu_items = get_menu_items(menu.id)
 
         no = 1
-        response = menu.title
+        response = menu.title + "\n"
         for menu_item in menu_items:
-            response += no + ":" + menu_item.description
+            response += str(no) + "." + menu_item.description + "\n"
             no += 1
 
         ussd_user.session = 1
@@ -238,11 +243,10 @@ def get_ussd_response_by_phone_and_menu_id_and_menu_item_id(phone, menu_id, menu
 
 
 def reset_user(ussd_user):
-    ussd_user.session = 1
+    ussd_user.session = 0
     ussd_user.progress = 0
-    ussd_user.menu_id = 1
+    ussd_user.menu_id = 0
     ussd_user.confirm_from = 0
-    ussd_user.menu_item_id = 0
     ussd_user.save()
 
 
@@ -254,6 +258,7 @@ def user_is_starting(text):
 
 
 def send_response(response, response_type):
+    print(response)
     if response_type == 1:
         output = "CON "
 
