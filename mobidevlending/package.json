@@ -13,6 +13,7 @@
     "gulp-sass": "^2.2.0"
   },
   "dependencies": {
+    "angular2": "^2.0.0-alpha.55",
     "bootstrap-sass": "^3.3.6"
   }
 }
