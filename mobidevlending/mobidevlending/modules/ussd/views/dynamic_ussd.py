@@ -112,7 +112,8 @@ def confirm_ussd_process(ussd_user, message):
             post_confirmation(ussd_user, menu)
             reset_user(ussd_user)
             response = menu.confirmation_message
-            return send_response(response, 2)
+            # return send_response(response, 2)
+            return response
         elif validation_variations(message, 2, "no"):
             reset_user(ussd_user)
             ussd_user.menu_id = 1
